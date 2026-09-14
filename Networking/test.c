@@ -28,6 +28,20 @@ void launch(struct Server *server){
 }
 
 int main(){
+    // printf("Program started...\n");
+    // char myString[] = "Fernando Alonso /is the goat";
+    // printf("%s\n", strtok(myString, "\0"));
+    // char *strpiece = strtok(myString, " ");
+    // printf("%s\n", strpiece); //Fernando
+    // memory is retained
+    // strpiece = strtok(NULL, " ");
+    // printf("%s\n", strpiece);//Alonso
+    // printf("%s\n", strtok(strpiece, " "));//Alonso
+    // printf("%s\n", strtok(myString, "/"));
+    // printf("%s\n", strtok(NULL, "\0"));
+
+
+
     WSADATA wsaData;
 
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
@@ -39,7 +53,7 @@ int main(){
         AF_INET, SOCK_STREAM, IPPROTO_TCP, 80, INADDR_ANY, 10, launch
     );
 
-    server.launch(&server);
+    // server.launch(&server);
     WSACleanup();
 }
 

@@ -6,6 +6,15 @@ set(CMAKE_C_STANDARD 23)
 add_executable(HTTPServer main.c
         Networking/server.c
         Networking/server.h
-        Networking/test.c)
+        Networking/test.c
+        Networking/HTTPRequest.c
+        Networking/HTTPRequest.h
+        DataStructures.h
+        DataStructures/Common/Node.c
+        DataStructures/Dictionary/Dictionary.c
+        DataStructures/Dictionary/Entry.c
+        DataStructures/Lists/LinkedList.c
+        DataStructures/Lists/Queue.c
+        DataStructures/Trees/BinarySearchTree.c)
 
 target_link_libraries(HTTPServer PRIVATE ws2_32)
