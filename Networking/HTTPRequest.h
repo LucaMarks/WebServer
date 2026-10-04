@@ -17,10 +17,14 @@ enum HTTPMethods {
 };
 
 typedef struct HTTPRequest {
-    int Method;
-    char *URI;
-    float HTTPVersion;
+    //switch over to these three
+    struct Dictionary requestLine;
     struct Dictionary headerFields;
+    struct Dictionary body;
+
+    // int Method;
+    // char *URI;
+    // float HTTPVersion;
 }HTTPRequest;
 
 HTTPRequest httpRequestConstructor(char *requestString);

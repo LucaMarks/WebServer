@@ -4,6 +4,10 @@
 #include <string.h>
 #include "../DataStructures/Lists/Queue.h"
 
+void extractRequestLineFields(HTTPRequest *request, char *requestLine);
+void extractHeaderFields(HTTPRequest *request, char *headerFields);
+void extractBody(HTTPRequest *request, char *body);
+
 int methodSelect(char *method) {
     if (strcmp(method, "GET") == 0) {
         return GET;
@@ -51,35 +55,123 @@ HTTPRequest httpRequestConstructor(char *requestString) {
 
     HTTPRequest request;
 
-    char *method = strtok(requestLine," ");
-    request.Method = methodSelect(method);
-    char *URI = strtok(NULL, " ");
-    request.URI = URI;
-    char *HTTPVersion = strtok(NULL, " ");
-    HTTPVersion = strtok(HTTPVersion, "/");
-    HTTPVersion = strtok(NULL, "/");
-    request.HTTPVersion = (float)atof(HTTPVersion);
+    //parse each section as needed
+    extractRequestLineFields(&request, requestLine);
+    extractHeaderFields(&request, headerFields);
+    extractBody(&request, body);
 
-    request.headerFields = dictionary_constructor(compare_string_keys);
+    return request;
 
-    struct Queue headers = queue_constructor();
-
-    char *token = strtok(headerFields, "\n");
-    while (token) {
-        headers.push(&headers, token, sizeof(*token));
-        token = strtok(NULL, "\n");
     }
 
+
+
+void extractRequestLineFields(HTTPRequest *request, char *requestLine) {
+    //copy the string literal into a local instance
+    char fields[strlen(requestLine)];
+    strcpy(fields, requestLine);
+
+    //separate the string on spaces for each section
+    char *method = strtok(fields, " ");
+    char *uri = strtok(NULL, " ");
+    char *httpVersion = strtok(NULL, " ");
+
+    //insert the results into the request object as a dictionary
+
+    struct Dictionary requestLineDict = dictionary_constructor(compare_string_keys);
+    requestLineDict.insert(&requestLineDict, "method", sizeof("method"), method, sizeof(char[strlen(method)]));
+    requestLineDict.insert(&requestLineDict, "uri", sizeof("uri"), uri, sizeof(char[strlen(uri)]));
+    requestLineDict.insert(&requestLineDict, "httpVersion", sizeof("httpVersion"), httpVersion, sizeof(char[strlen(httpVersion)]));
+
+    //save the dictionary to the request object
+    (*request).requestLine = requestLineDict;
+
+    if (request->requestLine.search(&(request->requestLine), "GET", sizeof("GET"))) {
+        extractBody(request, (char *)request->requestLine.search(&(request->requestLine), "uri", sizeof("uri")));
+
+    }
+}
+
+//parses out the header fields
+void extractHeaderFields(HTTPRequest *request, char *headerFields) {
+
+    //copy the literal into a local instance
+    char fields[strlen(headerFields)];
+    strcpy(fields, headerFields);
+    //save each line of the input into a queue
+    struct Queue headers = queue_constructor();
+    char *field = strtok(fields, "\n");
+
+    while (field) {
+        headers.push(&headers, field, sizeof(char[strlen(field)]));
+        field = strtok(fields, "\n");
+    }
+
+    //initialize the request's headerFields dict
+    request->headerFields = dictionary_constructor(compare_string_keys);
+
+    //use the queue to further extract key-value pairs
     char *header = (char *)headers.peek(&headers);
     while (header) {
         char *key = strtok(header, ":");
-        char *value = strtok(NULL, "|");
-        request.headerFields.insert(&request.headerFields, key, sizeof(*key), value, sizeof(*value));
-        headers.pop(&headers);
-        header = (char *)headers.peek(&headers);
+        char *value = strtok(NULL, "\0");
+        if (value) {
+            //remove leading space
+            if (value[0] == ' '){value++;}
 
+            //push key-value pairs into request's headerFields dict
+            request->headerFields.insert(&(request->headerFields), key, sizeof(char[strlen(key)]), value, sizeof(char[strlen(value)]));
+            //collect the next field from queue
+        }
+        headers.pop(&headers);
+        header = (char*)headers.peek(&headers);
     }
 
+    //destroy the queue
+    queue_destructor(&headers);
 
-    return request;
 }
+
+void extractBody(HTTPRequest *request, char *body) {
+
+    //check what content type needs to be parsed
+    char *contentType = (char *)request->headerFields.search(&(request->headerFields), "Content-Type", sizeof("Content-Type"));
+    if (contentType) {
+        //initialize the bodyFields dictionary
+        struct Dictionary bodyFields = dictionary_constructor(compare_string_keys);
+        if (strcmp(contentType, "application/x-www-form-urlencoded") == 0) {
+            //collect each key-value pair as a set and store them in a queue
+            struct Queue fields = queue_constructor();
+            char *field = strtok(body, "&");
+
+            while (field) {
+                fields.push(&fields, field, sizeof(char[strlen(field)]));
+            }
+            //iterate over the queue to further separate fields from values
+            field = fields.peek(&fields);
+            while (field) {
+                char *key = strtok(field, "=");
+                char *value = strtok(NULL, "\0");
+                //remove leading white space
+
+                if (value[0] == ' ') {
+                    value++;
+                }
+
+                //insert the key-value pair into the dictionary
+                bodyFields.insert(&bodyFields, key, sizeof(char[strlen(key)]), value, sizeof(char[strlen(value)]));
+                //collect the next item in the queue
+                fields.pop(&fields);
+                field = fields.peek(&fields);
+            }
+            //destroy the queue
+            queue_destructor(&fields);
+        }else {
+            //save the data as a single key-value pair
+            bodyFields.insert(&bodyFields, "data", sizeof("data"), body, sizeof(char[strlen(body)]));
+        }
+        //set the request's body dictionary
+        request->body = bodyFields;
+    }
+}
+
