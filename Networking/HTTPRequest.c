@@ -1,4 +1,5 @@
 #include "HTTPRequest.h"
+#include "./Nodes/HTTPServer.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -10,37 +11,37 @@ void extractBody(HTTPRequest *request, char *body);
 
 int methodSelect(char *method) {
     if (strcmp(method, "GET") == 0) {
-        return GET;
+        return HTTP_GET;
     }
     else if (strcmp(method, "POST") == 0) {
-        return POST;
+        return HTTP_POST;
     }
     else if (strcmp(method, "PUT") == 0) {
-        return PUT;
+        return HTTP_PUT;
     }
     else if (strcmp(method, "HEAD") == 0) {
-        return HEAD;
+        return HTTP_HEAD;
     }
     else if (strcmp(method, "PATCH") == 0) {
-        return PATCH;
+        return HTTP_PATCH;
     }
     else if (strcmp(method, "DELETE") == 0) {
-        return DELETE;
+        return HTTP_DELETE;
     }
     else if (strcmp(method, "CONNECT") == 0) {
-        return CONNECT;
+        return HTTP_CONNECT;
     }
     else if (strcmp(method, "OPTIONS") == 0) {
-        return OPTIONS;
+        return HTTP_OPTIONS;
     }
     else if (strcmp(method, "TRACE") == 0) {
-        return TRACE;
+        return HTTP_TRACE;
     }
 }
 
 HTTPRequest httpRequestConstructor(char *requestString) {
 
-    char requested[strlen(requestString)];
+    char requested[strlen(requestString)+1];
     strcpy(requested, requestString);
 
     for (int i = 0; i < strlen(requested) -1; i++) {
@@ -96,15 +97,15 @@ void extractRequestLineFields(HTTPRequest *request, char *requestLine) {
 void extractHeaderFields(HTTPRequest *request, char *headerFields) {
 
     //copy the literal into a local instance
-    char fields[strlen(headerFields)];
+    char fields[strlen(headerFields)+1];
     strcpy(fields, headerFields);
     //save each line of the input into a queue
     struct Queue headers = queue_constructor();
     char *field = strtok(fields, "\n");
 
     while (field) {
-        headers.push(&headers, field, sizeof(char[strlen(field)]));
-        field = strtok(fields, "\n");
+        headers.push(&headers, field, sizeof(char[strlen(field)])+1);
+        field = strtok(NULL, "\n");
     }
 
     //initialize the request's headerFields dict
@@ -120,7 +121,7 @@ void extractHeaderFields(HTTPRequest *request, char *headerFields) {
             if (value[0] == ' '){value++;}
 
             //push key-value pairs into request's headerFields dict
-            request->headerFields.insert(&(request->headerFields), key, sizeof(char[strlen(key)]), value, sizeof(char[strlen(value)]));
+            request->headerFields.insert(&(request->headerFields), key, sizeof(char[strlen(key)])+1, value, sizeof(char[strlen(value)])+1);
             //collect the next field from queue
         }
         headers.pop(&headers);
