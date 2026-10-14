@@ -23,7 +23,7 @@ typedef struct Server {
 
     int socket;
 
-    void (*launch)(struct Server *server);
+    // void (*launch)(struct Server *server);
 
 }Server;
 

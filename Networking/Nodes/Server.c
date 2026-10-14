@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-struct Server serverConstructor(int domain, int service, int protocol, int port, u_long interface, int backlog, void(*launch)(Server *server)) {
+struct Server serverConstructor(int domain, int service, int protocol, int port, u_long interface, int backlog /*void(*launch)(Server *server)*/) {
     struct Server server;
 
     server.domain = domain;
@@ -36,7 +36,7 @@ struct Server serverConstructor(int domain, int service, int protocol, int port,
         exit(1);
     }
 
-    server.launch = launch;
+    // server.launch = launch;
 
     return server;
 }

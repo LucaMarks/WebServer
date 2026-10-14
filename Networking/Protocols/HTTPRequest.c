@@ -1,9 +1,9 @@
 #include "HTTPRequest.h"
-#include "./Nodes/HTTPServer.h"
+// #include "../Nodes/HTTPServer.h"
 
 #include <stdlib.h>
 #include <string.h>
-#include "../DataStructures/Lists/Queue.h"
+#include "../../DataStructures/Lists/Queue.h"
 
 void extractRequestLineFields(HTTPRequest *request, char *requestLine);
 void extractHeaderFields(HTTPRequest *request, char *headerFields);

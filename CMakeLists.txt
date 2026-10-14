@@ -7,8 +7,8 @@ add_executable(HTTPServer main.c
         Networking/Nodes/Server.c
         Networking/Nodes/Server.h
         Networking/test.c
-        Networking/HTTPRequest.c
-        Networking/HTTPRequest.h
+        Networking/Protocols/HTTPRequest.c
+        Networking/Protocols/HTTPRequest.h
         DataStructures.h
         DataStructures/Common/Node.c
         DataStructures/Dictionary/Dictionary.c
@@ -17,6 +17,11 @@ add_executable(HTTPServer main.c
         DataStructures/Lists/Queue.c
         DataStructures/Trees/BinarySearchTree.c
         Networking/Nodes/HTTPServer.c
-        Networking/Nodes/HTTPServer.h)
+        Networking/Nodes/HTTPServer.h
+        Networking/Nodes/Route.c
+        Networking/Nodes/Route.h
+        Networking/Systems/ThreadPool.c
+        Networking/Systems/ThreadPool.h
+)
 
 target_link_libraries(HTTPServer PRIVATE ws2_32)

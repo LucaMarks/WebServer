@@ -2,8 +2,8 @@
 #define HTTPSERVER_HTTPREQUEST_H
 
 #include <stdio.h>
-#include "../DataStructures/Dictionary/Dictionary.h"
-#include "./Nodes/Server.h"
+#include "../../DataStructures/Dictionary/Dictionary.h"
+#include "../Nodes/Server.h"
 
 // enum HTTPMethods {
 //     GET,
@@ -29,7 +29,7 @@ typedef struct HTTPRequest {
 }HTTPRequest;
 
 //maybe we need to get a launch function here
-void launch(Server *server);
+// void launch(Server *server);
 HTTPRequest httpRequestConstructor(char *requestString);
 void httpRequestDestructor(HTTPRequest *request);
 
