@@ -79,7 +79,7 @@ void *genericThreadFunction(void *arg) {
 
 void addWork(ThreadPool *threadPool, ThreadJob *threadJob) {
     pthread_mutex_lock(&threadPool->lock);
-    threadPool->work.push(*threadPool->work, &threadJob, sizeof(threadJob));
+    threadPool->work.push(&threadPool->work, &threadJob, sizeof(threadJob));
     pthread_cond_signal(&threadPool->signal);
     pthread_mutex_unlock(&threadPool->lock);
 }
