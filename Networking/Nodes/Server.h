@@ -27,6 +27,6 @@ typedef struct Server {
 
 }Server;
 
-struct Server serverConstructor(int domain, int service, int protocol, int port, u_long interface, int backlog, void(*launch)(Server *server));
+struct Server serverConstructor(int domain, int service, int protocol, int port, u_long interface, int backlog /*void(*launch)(Server *server)*/);
 
 #endif
